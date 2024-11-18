@@ -17,6 +17,7 @@ const phasermsg = () => {
 };
 
 export default defineConfig({
+  base: "/sprite-viewer/",
   logLevel: "warning",
   build: {
     rollupOptions: {
