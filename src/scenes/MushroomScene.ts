@@ -111,6 +111,8 @@ export class MushroomScene extends Scene {
   update() {
     let cursors = this.input.keyboard.createCursorKeys();
 
+    let spaceBar = cursors.space;
+
     let sprite = this.data.get("sprite");
     let version = this.data.get("version");
     let color = this.data.get("color");
@@ -125,6 +127,8 @@ export class MushroomScene extends Scene {
       sprite.setFlipX(false);
 
       sprite.anims.play(`right${version}_color_${color}`, true);
+    } else if (spaceBar.isDown) {
+      sprite.anims.play(`attack${version}_color_${color}`, true);
     } else {
       sprite.setVelocityX(0);
 
@@ -178,6 +182,16 @@ export class MushroomScene extends Scene {
           key: `jump${index}_color_${colorIndex}`,
           frames: [{ key: spriteSheet, frame: 24 }],
           frameRate: 20,
+        });
+
+        this.anims.create({
+          key: `attack${index}_color_${colorIndex}`,
+          frames: this.anims.generateFrameNumbers(spriteSheet, {
+            start: 40,
+            end: 43,
+          }),
+          frameRate: 10,
+          repeat: -1,
         });
       }
     }
