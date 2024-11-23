@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import { MushroomObject } from "../gameObjects/MushroomObject";
+import { GremlinObject } from "../gameObjects/GremlinObject";
 
 export class MainMenu extends Scene {
   constructor() {
@@ -18,6 +19,16 @@ export class MainMenu extends Scene {
         spacing: 2,
       }
     );
+
+    this.load.spritesheet(
+      "gremlin",
+      "greedy-gremlin/greedy gremlin (base) v01.png",
+      {
+        frameWidth: 50,
+        frameHeight: 50,
+        spacing: 14,
+      }
+    );
   }
 
   create() {
@@ -31,6 +42,15 @@ export class MainMenu extends Scene {
       });
 
     this.data.set("mushroom", mushroomSprite);
+
+    const gremlinSprite = new GremlinObject({ scene: this, x: 140, y: 120 })
+      .setScale(1.5)
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.scene.start("GremlinScene");
+      });
+
+    this.data.set("gremlin", gremlinSprite);
 
     this.add.text(300, 20, "Monster Viewer", {
       fontFamily: "Arial",
@@ -47,14 +67,26 @@ export class MainMenu extends Scene {
 
   update(): void {
     const mushroom = this.data.get("mushroom");
+    const gremlin = this.data.get("gremlin");
 
     mushroom.anims.play("idle", true);
+    gremlin.anims.play("idleGremlin", true);
   }
 
   initAnimations() {
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("mushroom", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 6,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: "idleGremlin",
+      frames: this.anims.generateFrameNumbers("gremlin", {
         start: 0,
         end: 3,
       }),

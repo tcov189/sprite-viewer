@@ -1,6 +1,7 @@
 import { Game, Types } from "phaser";
 import { MushroomScene } from "./scenes/MushroomScene";
 import { MainMenu } from "./scenes/MainMenu";
+import { GremlinScene } from "./scenes/GremlinScene";
 
 //  Find out more information about the Game Config at:
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
@@ -22,7 +23,7 @@ const config: Types.Core.GameConfig = {
       // debug: true,
     },
   },
-  scene: [MainMenu, MushroomScene],
+  scene: [MainMenu, MushroomScene, GremlinScene],
 };
 
 export default new Game(config);
