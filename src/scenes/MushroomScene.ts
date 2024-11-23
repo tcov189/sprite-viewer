@@ -1,14 +1,8 @@
 import { Scene } from "phaser";
 import { ButtonObject } from "../gameObjects/ButtonObject";
+import { MushroomObject } from "../gameObjects/MushroomObject";
 
 export class MushroomScene extends Scene {
-  background: Phaser.GameObjects.Image;
-  activeSprite: "mushroom_1" | "mushroom_2" = "mushroom_1";
-
-  sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-
-  spriteSheetPaths = ["A", "B", "C", "D"];
-
   constructor() {
     super("MushroomScene");
   }
@@ -18,32 +12,17 @@ export class MushroomScene extends Scene {
     this.load.image("background", "assets/bg.png");
     this.load.image("platform", "assets/platform.png");
 
-    this.load.setPath("assets/creatures");
-
     this.initLoader();
 
-    for (let index = 1; index <= this.spriteSheetPaths.length; index++) {
-      const sheet = this.spriteSheetPaths[index - 1];
-
-      for (let colorIndex = 1; colorIndex <= 5; colorIndex++) {
-        this.load.spritesheet(
-          `mushroom_${index}_color_${colorIndex}`,
-          `moody-mushroom/moody mushroom ${sheet} v0${colorIndex}.png`,
-          {
-            frameWidth: 30,
-            frameHeight: 30,
-            spacing: 2,
-          }
-        );
-      }
-    }
+    MushroomObject.loadSpriteSheets(this);
   }
 
   create() {
-    const mushroom = this.physics.add
-      .sprite(400, 170, "mushroom_1_color_1")
-      .setCollideWorldBounds(true)
-      .setScale(3);
+    const mushroomSprite = new MushroomObject({ scene: this, x: 400, y: 170 });
+
+    this.physics.add.existing(mushroomSprite);
+
+    mushroomSprite.setCollideWorldBounds(true).setScale(3);
 
     const versionText = this.add.text(600, 20, "Version: 1", {
       fontStyle: "bold",
@@ -56,7 +35,7 @@ export class MushroomScene extends Scene {
     });
 
     this.data.set({
-      sprite: mushroom,
+      sprite: mushroomSprite,
       version: "1",
       color: "1",
     });
@@ -98,14 +77,14 @@ export class MushroomScene extends Scene {
 
     this.physics.add
       .staticSprite(0, 515, "platform")
-      .setBelow(mushroom)
+      .setBelow(mushroomSprite)
       .setAlpha(0.7)
       .setScale(4)
       .refreshBody();
 
-    this.physics.add.collider(ground, mushroom);
+    this.physics.add.collider(ground, mushroomSprite);
 
-    this.initAnimations();
+    MushroomObject.initAnimations(this);
   }
 
   update() {
@@ -113,87 +92,26 @@ export class MushroomScene extends Scene {
 
     let spaceBar = cursors.space;
 
-    let sprite = this.data.get("sprite");
+    let sprite: MushroomObject = this.data.get("sprite");
     let version = this.data.get("version");
     let color = this.data.get("color");
 
     if (cursors.left.isDown) {
-      sprite.setVelocityX(-160);
-      sprite.setFlipX(true);
-
-      sprite.anims.play(`left${version}_color_${color}`, true);
+      sprite.moveLeft(version, color);
     } else if (cursors.right.isDown) {
-      sprite.setVelocityX(160);
-      sprite.setFlipX(false);
-
-      sprite.anims.play(`right${version}_color_${color}`, true);
+      sprite.moveRight(version, color);
     } else if (spaceBar.isDown) {
-      sprite.anims.play(`attack${version}_color_${color}`, true);
+      sprite.attack(version, color);
     } else {
-      sprite.setVelocityX(0);
-
-      sprite.anims.play(`idle${version}_color_${color}`, true);
+      sprite.idle(version, color);
     }
 
-    if (cursors.up.isDown && sprite.body.touching.down) {
+    if (cursors.up.isDown && sprite.body!.touching.down) {
       sprite.setVelocityY(-330);
     }
 
-    if (sprite.body.touching.down === false) {
-      sprite.anims.play(`jump${version}_color_${color}`);
-    }
-  }
-
-  initAnimations() {
-    for (let index = 1; index <= this.spriteSheetPaths.length; index++) {
-      for (let colorIndex = 1; colorIndex <= 5; colorIndex++) {
-        const spriteSheet = `mushroom_${index}_color_${colorIndex}`;
-        this.anims.create({
-          key: `idle${index}_color_${colorIndex}`,
-          frames: this.anims.generateFrameNumbers(spriteSheet, {
-            start: 0,
-            end: 3,
-          }),
-          frameRate: 8,
-          repeat: -1,
-        });
-
-        this.anims.create({
-          key: `left${index}_color_${colorIndex}`,
-          frames: this.anims.generateFrameNumbers(spriteSheet, {
-            start: 19,
-            end: 23,
-          }),
-          frameRate: 10,
-          repeat: -1,
-        });
-
-        this.anims.create({
-          key: `right${index}_color_${colorIndex}`,
-          frames: this.anims.generateFrameNumbers(spriteSheet, {
-            start: 19,
-            end: 23,
-          }),
-          frameRate: 10,
-          repeat: -1,
-        });
-
-        this.anims.create({
-          key: `jump${index}_color_${colorIndex}`,
-          frames: [{ key: spriteSheet, frame: 24 }],
-          frameRate: 20,
-        });
-
-        this.anims.create({
-          key: `attack${index}_color_${colorIndex}`,
-          frames: this.anims.generateFrameNumbers(spriteSheet, {
-            start: 40,
-            end: 43,
-          }),
-          frameRate: 10,
-          repeat: -1,
-        });
-      }
+    if (sprite.body!.touching.down === false) {
+      sprite.jump(version, color);
     }
   }
 

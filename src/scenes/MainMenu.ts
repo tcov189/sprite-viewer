@@ -1,4 +1,5 @@
 import { Scene } from "phaser";
+import { MushroomObject } from "../gameObjects/MushroomObject";
 
 export class MainMenu extends Scene {
   constructor() {
@@ -17,24 +18,20 @@ export class MainMenu extends Scene {
         spacing: 2,
       }
     );
+  }
 
-    const mushroom = this.make
-      .sprite({
-        x: 70,
-        y: 120,
-        scale: 2,
-        add: false,
-      })
-      .setTexture("mushroom_1")
+  create() {
+    const mushroomSprite = new MushroomObject({ scene: this, x: 70, y: 120 });
+
+    mushroomSprite
+      .setScale(2)
       .setInteractive()
       .on("pointerdown", () => {
         this.scene.start("MushroomScene");
       });
 
-    this.data.set("mushroom", mushroom);
-  }
+    this.data.set("mushroom", mushroomSprite);
 
-  create() {
     this.add.text(300, 20, "Monster Viewer", {
       fontFamily: "Arial",
       fontSize: "2rem",
@@ -44,10 +41,6 @@ export class MainMenu extends Scene {
       fontFamily: "Arial",
       //   fontSize: "2rem",
     });
-
-    const mushroom = this.data.get("mushroom");
-
-    this.add.existing(mushroom);
 
     this.initAnimations();
   }
